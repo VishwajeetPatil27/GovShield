@@ -47,3 +47,7 @@ Thumbs.db
 # Logs / runtime output
 logs/
 log.out
+
+# Docs / Markdown (do not push)
+*.md
+docs/
