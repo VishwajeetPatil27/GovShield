@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Officer Dashboard - GovShield</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+    <div class="dashboard">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>GovShield</h2>
+                <p class="sidebar-sub">Integrity & Risk Operations</p>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="#dashboard">Dashboard</a></li>
+                    <li><a href="#enrollments">Manage Enrollments</a></li>
+                    <li><a href="#schemes">Manage Schemes</a></li>
+                    <li><a href="#citizens">Citizens</a></li>
+                    <li><a href="#fraud">Fraud Alerts</a></li>
+                    <li><a href="#projects">Projects</a></li>
+                    <li><a href="#transparency-alerts">Transparency Alerts</a></li>
+                    <li><a href="#" onclick="logout()">Logout</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="top-bar">
+                <h1>Officer Dashboard</h1>
+                <div class="user-info">
+                    <span id="userName">Welcome!</span>
+                </div>
+            </header>
+
+            <section id="dashboard" class="content-section">
+                <h2>Dashboard Overview</h2>
+                <div class="dashboard-grid">
+                    <div class="card alert-info">
+                        <h3>Pending Applications</h3>
+                        <p id="pendingApplications" class="metric">0</p>
+                    </div>
+                    <div class="card alert-warning">
+                        <h3>Flagged for Review</h3>
+                        <p id="flaggedApplications" class="metric">0</p>
+                    </div>
+                    <div class="card alert-danger">
+                        <h3>Fraud Alerts</h3>
+                        <p id="fraudAlerts" class="metric">0</p>
+                    </div>
+                    <div class="card alert-success">
+                        <h3>Approved Today</h3>
+                        <p id="approvedToday" class="metric">0</p>
+                    </div>
+                    <div class="card">
+                        <h3>Registered Citizens</h3>
+                        <p id="registeredCitizens" class="metric">0</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="enrollments" class="content-section" style="display:none;">
+                <h2>Manage Enrollments</h2>
+                <div class="section-toolbar">
+                    <input type="text" id="enrollmentSearch" placeholder="Search enrollments..." class="search-input">
+                    <select id="statusFilter" class="filter-select">
+                        <option value="">All Status</option>
+                        <option value="SUBMITTED">Submitted</option>
+                        <option value="AUDITOR_APPROVED">Auditor Approved</option>
+                        <option value="OFFICER_APPROVED">Officer Approved</option>
+                        <option value="APPROVED">Approved</option>
+                        <option value="REJECTED">Rejected</option>
+                        <option value="FLAGGED_FOR_AUDIT">Flagged</option>
+                    </select>
+                </div>
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Enrollment #</th>
+                            <th>Citizen UGID</th>
+                            <th>Scheme</th>
+                            <th>Status</th>
+                            <th>Eligibility</th>
+                            <th>Risk</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="enrollmentsTableBody">
+                        <!-- Enrollments will be loaded here -->
+                    </tbody>
+                </table>
+            </section>
+
+            <section id="schemes" class="content-section" style="display:none;">
+                <h2>Manage Schemes</h2>
+                <button class="btn btn-primary" onclick="openCreateSchemeModal()">+ Create New Scheme</button>
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>Name</th>
+                            <th>Sector</th>
+                            <th>Max Income</th>
+                            <th>Benefit Amount</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="schemesTableBody">
+                        <!-- Schemes will be loaded here -->
+                    </tbody>
+                </table>
+            </section>
+
+            <section id="citizens" class="content-section" style="display:none;">
+                <h2>Citizens Management</h2>
+                <div class="section-toolbar">
+                    <input type="text" id="citizenSearch" placeholder="Search citizens by UGID or email..." class="search-input">
+                    <button class="btn btn-primary" onclick="loadPendingCitizenDocuments()">Pending Documents</button>
+                </div>
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>UGID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Registered On</th>
+                            <th>Verification</th>
+                            <th>Docs</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="citizensTableBody">
+                        <!-- Citizens will be loaded here -->
+                    </tbody>
+                </table>
+                <h3 style="margin-top:1rem;">Document Review Queue</h3>
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Doc ID</th>
+                            <th>Citizen UGID</th>
+                            <th>Type</th>
+                            <th>File</th>
+                            <th>Status</th>
+                            <th>Uploaded At</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="citizenDocsTableBody"></tbody>
+                </table>
+            </section>
+
+            <section id="fraud" class="content-section" style="display:none;">
+                <h2>Fraud Alerts</h2>
+                <table class="admin-table alert-table">
+                    <thead>
+                        <tr>
+                            <th>Alert ID</th>
+                            <th>Citizen UGID</th>
+                            <th>Enrollment #</th>
+                            <th>Risk Level</th>
+                            <th>Details</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="fraudAlertsTableBody">
+                        <!-- Fraud alerts will be loaded here -->
+                    </tbody>
+                </table>
+            </section>
+
+            <section id="projects" class="content-section" style="display:none;">
+                <h2>Project Monitoring</h2>
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Project Code</th>
+                            <th>Name</th>
+                            <th>Category</th>
+                            <th>Status</th>
+                            <th>Progress</th>
+                            <th>Budget</th>
+                            <th>Quality</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="projectsTableBody">
+                        <!-- Projects will be loaded here -->
+                    </tbody>
+                </table>
+            </section>
+
+            <section id="transparency-alerts" class="content-section" style="display:none;">
+                <h2>Public Evidence & Integrity Alerts</h2>
+                <div class="section-toolbar">
+                    <input type="text" id="projectAlertSearch" placeholder="Search by project code, severity, reason..." class="search-input">
+                </div>
+                <table class="admin-table alert-table">
+                    <thead>
+                        <tr>
+                            <th>Alert ID</th>
+                            <th>Project</th>
+                            <th>Severity</th>
+                            <th>Reason</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="projectAlertsTableBody"></tbody>
+                </table>
+            </section>
+        </main>
+    </div>
+
+    <script src="js/runtime-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/scheme.js"></script>
+    <script src="js/eligibility.js"></script>
+    <script src="js/project-monitoring.js"></script>
+    <script src="js/fraud-alerts.js"></script>
+    <script src="js/chatbot.js"></script>
+</body>
+</html>

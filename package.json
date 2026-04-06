@@ -1,0 +1,36 @@
+{
+  "name": "govshield",
+  "version": "1.0.0",
+  "description": "GovShield - Unified Beneficiary & Corruption Monitoring Platform",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"npm run frontend\" \"npm run backend\"",
+    "frontend": "cd frontend && python -m http.server 5500 || npx http-server -p 5500",
+    "backend": "cd backend && mvn spring-boot:run",
+    "db-setup": "node -e \"console.log('DB setup: mysql -u root -p < database/schema.sql'); console.log('Then: mysql -u root -p govshield < database/data.sql');\"",
+    "db-backup": "node -e \"console.log('Backup example: mysqldump -h <host> -P <port> -u <user> -p <db> > backup.sql');\"",
+    "lint": "eslint frontend/**/*.js",
+    "format": "prettier --write \"frontend/**/*.{html,css,js}\"",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "government",
+    "welfare",
+    "scheme",
+    "fraud-detection",
+    "beneficiary",
+    "monitoring"
+  ],
+  "author": "GovShield Team",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^7.6.0",
+    "eslint": "^8.43.0",
+    "prettier": "^2.8.8",
+    "http-server": "^14.1.1"
+  },
+  "engines": {
+    "node": ">=14.0.0",
+    "npm": ">=6.0.0"
+  }
+}

@@ -1,0 +1,49 @@
+# GovShield (Java + static frontend)
+
+# Java / Maven
+**/target/
+*.class
+*.jar
+*.war
+*.ear
+*.log
+
+# Node / frontend tooling
+**/node_modules/
+dist/
+build/
+.cache/
+npm-debug.log*
+yarn-error.log*
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+!.env.sample
+!.env.template
+
+# Netlify (local tooling)
+.netlify/
+
+# Local-only notes (keep docs committed)
+*.local.md
+*_LOCAL.md
+NOTES*.md
+notes*.md
+
+# IDE
+.vscode/
+.idea/
+*.iml
+*.ipr
+*.iws
+*.code-workspace
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Logs / runtime output
+logs/
+log.out

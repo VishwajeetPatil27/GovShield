@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Citizen Dashboard - GovShield</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+    <div class="dashboard">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>GovShield</h2>
+                <p class="sidebar-sub">Eligibility Decision Engine</p>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="#dashboard">Dashboard</a></li>
+                    <li><a href="#schemes">View Schemes</a></li>
+                    <li><a href="#eligibility-checker">Eligibility Checker</a></li>
+                    <li><a href="#transparency">Transparency</a></li>
+                    <li><a href="#applications">My Applications</a></li>
+                    <li><a href="#profile">My Profile</a></li>
+                    <li><a href="#" onclick="logout()">Logout</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="top-bar">
+                <h1>Citizen Dashboard</h1>
+                <div class="user-info">
+                    <span id="userName">Welcome!</span>
+                </div>
+            </header>
+
+            <section id="dashboard" class="content-section">
+                <h2>Dashboard</h2>
+                <div class="dashboard-grid">
+                    <div class="card">
+                        <h3>Active Schemes</h3>
+                        <p id="activeSchemes" class="metric">0</p>
+                    </div>
+                    <div class="card">
+                        <h3>Submitted</h3>
+                        <p id="totalApplications" class="metric">0</p>
+                    </div>
+                    <div class="card">
+                        <h3>Approved</h3>
+                        <p id="approvedCount" class="metric">0</p>
+                    </div>
+                    <div class="card">
+                        <h3>Rejected</h3>
+                        <p id="rejectedCount" class="metric">0</p>
+                    </div>
+                    <div class="card">
+                        <h3>UGID</h3>
+                        <p id="ugidDisplay" class="metric" style="font-size:0.9em;">-</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="schemes" class="content-section" style="display:none;">
+                <h2>Available Schemes</h2>
+                <div class="section-toolbar">
+                    <input type="text" id="schemeSearch" placeholder="Search by scheme name, code, sector..." class="search-input">
+                </div>
+                <div id="schemesList" class="scheme-cards">
+                    <!-- Schemes will be loaded here -->
+                </div>
+            </section>
+
+            <section id="eligibility-checker" class="content-section" style="display:none;">
+                <h2>Real-Time Scheme Eligibility Checker</h2>
+                <p class="muted">Try your own inputs (demo) or leave UGID filled to use your stored profile.</p>
+                <div class="two-col">
+                    <div class="card">
+                        <h3>Inputs</h3>
+                        <div class="form-group">
+                            <label>UGID (optional)</label>
+                            <input id="rtUgid" type="text" placeholder="UGID-..." />
+                        </div>
+                        <div class="form-group">
+                            <label>Age (years)</label>
+                            <input id="rtAge" type="number" min="0" max="120" placeholder="e.g., 25" />
+                        </div>
+                        <div class="form-group">
+                            <label>Annual Income (₹)</label>
+                            <input id="rtIncome" type="number" min="0" placeholder="e.g., 250000" />
+                        </div>
+                        <div class="form-group">
+                            <label>Government Employee?</label>
+                            <select id="rtGov">
+                                <option value="">Unknown</option>
+                                <option value="true">Yes</option>
+                                <option value="false">No</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Vehicles Count</label>
+                            <input id="rtVehicles" type="number" min="0" placeholder="e.g., 1" />
+                        </div>
+                        <div class="form-group">
+                            <label>Land (acres)</label>
+                            <input id="rtLand" type="number" min="0" step="0.1" placeholder="e.g., 0.5" />
+                        </div>
+                        <div class="form-group">
+                            <label>Electricity Units / Month</label>
+                            <input id="rtElectricity" type="number" min="0" placeholder="e.g., 120" />
+                        </div>
+                        <div class="form-group">
+                            <label>Declared Assets Value (₹)</label>
+                            <input id="rtAssets" type="number" min="0" placeholder="e.g., 200000" />
+                        </div>
+                        <button class="btn btn-primary btn-block" onclick="runRealtimeEligibilityCheck()">Check Eligibility</button>
+                    </div>
+                    <div class="card">
+                        <h3>Results</h3>
+                        <div id="rtCepsSummary" class="ceps-chip muted">CEPS: -</div>
+                        <div class="section-toolbar" style="margin-top:0.8rem;">
+                            <input type="text" id="rtResultSearch" placeholder="Filter by scheme name/sector..." class="search-input" />
+                        </div>
+                        <div id="rtResults" class="result-list"></div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="transparency" class="content-section" style="display:none;">
+                <h2>Public Project Transparency</h2>
+                <p class="muted">Submit geo-tagged evidence (photos/complaints/reviews) to trigger integrity alerts.</p>
+                <table class="applications-table">
+                    <thead>
+                        <tr>
+                            <th>Project Code</th>
+                            <th>Name</th>
+                            <th>Status</th>
+                            <th>Progress</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="citizenProjectsBody"></tbody>
+                </table>
+            </section>
+
+            <section id="applications" class="content-section" style="display:none;">
+                <h2>My Applications</h2>
+                <div class="section-toolbar">
+                    <input type="text" id="citizenAppSearch" placeholder="Search by scheme or status..." class="search-input">
+                </div>
+                <table class="applications-table">
+                    <thead>
+                        <tr>
+                            <th>Enrollment #</th>
+                            <th>Scheme</th>
+                            <th>Status</th>
+                            <th>Eligibility</th>
+                            <th>Risk Level</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody id="applicationsTableBody">
+                        <!-- Applications will be loaded here -->
+                    </tbody>
+                </table>
+            </section>
+
+            <section id="profile" class="content-section" style="display:none;">
+                <h2>My Profile</h2>
+                <div class="profile-form">
+                    <div class="form-group">
+                        <label>Name:</label>
+                        <p id="profileName">-</p>
+                    </div>
+                    <div class="form-group">
+                        <label>Email:</label>
+                        <p id="profileEmail">-</p>
+                    </div>
+                    <div class="form-group">
+                        <label>Aadhaar:</label>
+                        <p id="profileAadhaar">-</p>
+                    </div>
+                    <div class="form-group">
+                        <label>UGID:</label>
+                        <p id="profileUgid">-</p>
+                    </div>
+                    <div class="form-group">
+                        <label>Phone:</label>
+                        <p id="profilePhone">-</p>
+                    </div>
+                    <div class="form-group">
+                        <label>Date of Birth:</label>
+                        <p id="profileDob">-</p>
+                    </div>
+                    <div class="form-group">
+                        <label>Gender:</label>
+                        <p id="profileGender">-</p>
+                    </div>
+                    <div class="form-group">
+                        <label>State / District:</label>
+                        <p id="profileLocation">-</p>
+                    </div>
+                    <div class="form-group">
+                        <label>Employment Status:</label>
+                        <p id="profileEmployment">-</p>
+                    </div>
+                    <div class="form-group">
+                        <label>Annual Income:</label>
+                        <p id="profileIncome">-</p>
+                    </div>
+                    <div class="form-group">
+                        <label>Address:</label>
+                        <p id="profileAddress">-</p>
+                    </div>
+                    <div class="form-group">
+                        <label>Verification Status:</label>
+                        <p id="profileVerificationStatus">-</p>
+                    </div>
+                </div>
+                <div class="card" style="margin-top:1rem;">
+                    <h3>Citizen Economic Profile Score (CEPS)</h3>
+                    <p class="muted">This score is computed from economic signals to reduce manipulation.</p>
+                    <div class="ceps-row">
+                        <div class="ceps-chip" id="cepsChip">CEPS: -</div>
+                        <button class="btn btn-primary btn-sm" onclick="loadCeps(true)">Recalculate</button>
+                    </div>
+                    <div class="two-col" style="margin-top:0.8rem;">
+                        <div class="form-group">
+                            <label>Vehicles Count</label>
+                            <input id="cepsVehicles" type="number" min="0" placeholder="e.g., 1" />
+                        </div>
+                        <div class="form-group">
+                            <label>Land (acres)</label>
+                            <input id="cepsLand" type="number" min="0" step="0.1" placeholder="e.g., 0.5" />
+                        </div>
+                        <div class="form-group">
+                            <label>Electricity Units / Month</label>
+                            <input id="cepsElectricity" type="number" min="0" placeholder="e.g., 120" />
+                        </div>
+                        <div class="form-group">
+                            <label>Declared Assets Value (₹)</label>
+                            <input id="cepsAssets" type="number" min="0" placeholder="e.g., 200000" />
+                        </div>
+                    </div>
+                    <button class="btn btn-primary btn-block" onclick="saveCeps()">Save CEPS Factors</button>
+                </div>
+                <button class="btn btn-primary" onclick="generateCitizenCard()">Generate Beneficiary Card</button>
+                <button id="downloadCitizenCardBtn" class="btn btn-primary" style="display:none;">Download Beneficiary Card (PDF)</button>
+                <div id="citizenCardPreview" class="id-card" style="display:none;"></div>
+                <h3 style="margin-top:1.2rem;">Uploaded Documents</h3>
+                <table class="applications-table">
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Document #</th>
+                            <th>File</th>
+                            <th>Status</th>
+                            <th>Remarks</th>
+                        </tr>
+                    </thead>
+                    <tbody id="citizenDocumentsBody"></tbody>
+                </table>
+            </section>
+        </main>
+    </div>
+
+    <script src="js/runtime-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/scheme.js"></script>
+    <script src="js/eligibility.js"></script>
+    <script src="js/project-monitoring.js"></script>
+    <script src="js/chatbot.js"></script>
+</body>
+</html>
