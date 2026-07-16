@@ -23,7 +23,8 @@
                     <li><a href="#citizens">Citizens</a></li>
                     <li><a href="#fraud">Fraud Alerts</a></li>
                     <li><a href="#projects">Projects</a></li>
-                    <li><a href="#transparency-alerts">Transparency Alerts</a></li>
+                    <li data-role-only="ADMIN"><a href="#transparency-alerts">Transparency Alerts</a></li>
+                    <li data-role-only="ADMIN"><a href="#evidence-review">Public Evidence</a></li>
                     <li><a href="#" onclick="logout()">Logout</a></li>
                 </ul>
             </nav>
@@ -196,7 +197,7 @@
                 </table>
             </section>
 
-            <section id="transparency-alerts" class="content-section" style="display:none;">
+            <section id="transparency-alerts" class="content-section" style="display:none;" data-role-only="ADMIN">
                 <h2>Public Evidence & Integrity Alerts</h2>
                 <div class="section-toolbar">
                     <input type="text" id="projectAlertSearch" placeholder="Search by project code, severity, reason..." class="search-input">
@@ -213,6 +214,25 @@
                         </tr>
                     </thead>
                     <tbody id="projectAlertsTableBody"></tbody>
+                </table>
+            </section>
+
+            <section id="evidence-review" class="content-section" style="display:none;" data-role-only="ADMIN">
+                <h2>Public Evidence Review</h2>
+                <p class="muted">Administrative review of citizen-submitted photos and complaints.</p>
+                <table class="admin-table alert-table">
+                    <thead>
+                        <tr>
+                            <th>Submitted At</th>
+                            <th>Project</th>
+                            <th>Citizen</th>
+                            <th>Type</th>
+                            <th>Message</th>
+                            <th>Photo</th>
+                            <th>Geo</th>
+                        </tr>
+                    </thead>
+                    <tbody id="projectEvidenceTableBody"></tbody>
                 </table>
             </section>
         </main>

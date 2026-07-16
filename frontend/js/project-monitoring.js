@@ -74,6 +74,66 @@ async function loadProjects() {
     updateProjectMetrics(projects);
 }
 
+async function loadProjectEvidenceReview() {
+    const role = (localStorage.getItem('userRole') || '').toUpperCase();
+    const body = document.getElementById('projectEvidenceTableBody');
+    if (!body) return;
+
+    if (role !== 'AUDITOR' && role !== 'ADMIN') {
+        body.innerHTML = '<tr><td colspan="7">Access restricted to auditor and admin roles.</td></tr>';
+        return;
+    }
+
+    const evidence = await loadAllProjectEvidence();
+    if (!evidence || evidence.length === 0) {
+        body.innerHTML = '<tr><td colspan="7">No public evidence submitted yet</td></tr>';
+        return;
+    }
+
+    body.innerHTML = evidence.map(item => {
+        const projectLabel = `${item.project?.projectCode || '-'} / ${item.project?.projectName || '-'}`;
+        const citizenLabel = item.citizen?.ugid || 'Anonymous';
+        const photoAction = item.photoBase64
+            ? `<button class="btn btn-sm" onclick="previewEvidencePhoto('${escapeForJs(item.fileName || 'evidence.png')}', '${escapeForJs(item.photoBase64)}')">Preview</button>`
+            : '-';
+        const geo = item.geoLat != null && item.geoLng != null ? `${item.geoLat}, ${item.geoLng}` : '-';
+        return `
+            <tr>
+                <td>${item.createdAt ? new Date(item.createdAt).toLocaleString() : '-'}</td>
+                <td>${escapeHtml(projectLabel)}</td>
+                <td>${escapeHtml(citizenLabel)}</td>
+                <td><span class="status-badge ${safeClass(item.evidenceType)}">${escapeHtml(item.evidenceType || '-')}</span></td>
+                <td>${escapeHtml(item.message || '-')}</td>
+                <td>${photoAction}</td>
+                <td>${escapeHtml(geo)}</td>
+            </tr>
+        `;
+    }).join('');
+}
+
+async function loadAllProjectEvidence() {
+    const bulkEvidence = await apiCall('/projects/evidence/all');
+    if (Array.isArray(bulkEvidence)) {
+        return bulkEvidence;
+    }
+
+    const projects = await apiCall('/projects');
+    if (!Array.isArray(projects) || projects.length === 0) {
+        return [];
+    }
+
+    const evidenceLists = await Promise.all(
+        projects.map(async project => {
+            const list = await apiCall(`/projects/${project.id}/evidence`);
+            return Array.isArray(list) ? list : [];
+        })
+    );
+
+    return evidenceLists
+        .flat()
+        .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+}
+
 // Update project metrics
 function updateProjectMetrics(projects) {
     const totalBudget = projects.reduce((sum, p) => sum + parseFloat(p.totalBudget), 0);
@@ -192,6 +252,7 @@ async function reviewProject(projectId, approved) {
 function getQualityClass(quality) {
     const classMap = {
         'GOOD': 'approved',
+        'SATISFACTORY': 'pending',
         'AVERAGE': 'pending',
         'POOR': 'rejected'
     };
@@ -199,7 +260,8 @@ function getQualityClass(quality) {
 }
 
 function formatCurrency(amount) {
-    return parseFloat(amount).toLocaleString('en-IN', {
+    const value = Number(amount || 0);
+    return value.toLocaleString('en-IN', {
         minimumFractionDigits: 0,
         maximumFractionDigits: 0
     });
@@ -212,6 +274,7 @@ function formatCurrency(amount) {
 async function loadCitizenProjectsForTransparency() {
     const projects = await apiCall('/projects');
     const body = document.getElementById('citizenProjectsBody');
+    populateEvidenceProjectSelect(projects || []);
     if (!body) return;
 
     if (!projects || projects.length === 0) {
@@ -232,15 +295,43 @@ async function loadCitizenProjectsForTransparency() {
     `).join('');
 }
 
-async function submitProjectEvidence(projectId) {
-    const evidenceType = (prompt('Evidence type: PHOTO / COMPLAINT / REVIEW', 'PHOTO') || '').trim().toUpperCase();
+function populateEvidenceProjectSelect(projects) {
+    const select = document.getElementById('citizenEvidenceProject');
+    if (!select) return;
+
+    const current = select.value;
+    select.innerHTML = projects.length === 0
+        ? '<option value="">No projects available</option>'
+        : projects.map(project => `
+            <option value="${project.id}">${escapeHtml(project.projectCode)} - ${escapeHtml(project.projectName)}</option>
+        `).join('');
+
+    if (current && projects.some(project => String(project.id) === String(current))) {
+        select.value = current;
+    }
+}
+
+async function submitProjectEvidence(projectId = null) {
+    const selectedProjectId = projectId || document.getElementById('citizenEvidenceProject')?.value;
+    if (!selectedProjectId) {
+        alert('Please choose a project before submitting evidence.');
+        return;
+    }
+    const evidenceType = (document.getElementById('citizenEvidenceType')?.value || 'PHOTO').trim().toUpperCase();
+    const message = document.getElementById('citizenEvidenceMessage')?.value || '';
+    const progressEstimate = document.getElementById('citizenEvidenceProgress')?.value || '';
+    const contractorRating = document.getElementById('citizenEvidenceRating')?.value || '';
+    const photoInput = document.getElementById('citizenEvidencePhoto');
+    const photoFile = photoInput?.files?.[0] || null;
+
     if (!evidenceType) return;
-    const message = prompt('Describe what you observed (optional):', '') || '';
-    const progressEstimate = prompt('Progress estimate % (optional):', '');
-    const contractorRating = prompt('Contractor rating 1-5 (optional):', '');
-    const photoBase64 = prompt('Photo (base64, optional):', '') || '';
+    if (evidenceType === 'PHOTO' && !photoFile) {
+        alert('Please select a photo to submit a progress update.');
+        return;
+    }
 
     const location = await getGeoLocationSafe();
+    const photoBase64 = photoFile ? await fileToBase64(photoFile) : null;
 
     const payload = {
         ugid: localStorage.getItem('userUgid') || '',
@@ -248,17 +339,33 @@ async function submitProjectEvidence(projectId) {
         message,
         progressEstimate: progressEstimate === '' ? null : Number(progressEstimate),
         contractorRating: contractorRating === '' ? null : Number(contractorRating),
-        photoBase64: photoBase64 || null,
+        photoBase64,
         geoLat: location?.lat ?? null,
         geoLng: location?.lng ?? null
     };
 
-    const result = await apiCall(`/projects/${projectId}/evidence`, 'POST', payload);
+    const result = await apiCall(`/projects/${selectedProjectId}/evidence`, 'POST', payload);
     if (result) {
         alert('Evidence submitted. Thank you for helping improve transparency.');
+        document.getElementById('citizenEvidenceMessage') && (document.getElementById('citizenEvidenceMessage').value = '');
+        document.getElementById('citizenEvidenceProgress') && (document.getElementById('citizenEvidenceProgress').value = '');
+        document.getElementById('citizenEvidenceRating') && (document.getElementById('citizenEvidenceRating').value = '');
+        if (photoInput) photoInput.value = '';
     } else {
         alert('Unable to submit evidence right now.');
     }
+}
+
+function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+            const result = String(reader.result || '');
+            resolve(result.split(',').pop() || '');
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
 }
 
 function getGeoLocationSafe() {
@@ -327,4 +434,52 @@ function escapeHtml(value) {
         .replace(/>/g, '&gt;')
         .replace(/\"/g, '&quot;')
         .replace(/'/g, '&#039;');
+}
+
+function escapeForJs(value) {
+    return String(value ?? '')
+        .replace(/\\/g, '\\\\')
+        .replace(/'/g, "\\'")
+        .replace(/\r/g, '\\r')
+        .replace(/\n/g, '\\n');
+}
+
+function previewEvidencePhoto(fileName, base64) {
+    const mime = mimeFromFileName(fileName);
+    const win = window.open('', '_blank', 'noopener,noreferrer');
+    if (!win) {
+        alert('Popup blocked. Please allow popups to preview the uploaded photo.');
+        return;
+    }
+
+    const src = `data:${mime};base64,${base64}`;
+    win.document.write(`
+        <html>
+            <head>
+                <title>Evidence Preview</title>
+                <style>
+                    body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f5f7fb; }
+                    .wrap { max-width: 1000px; margin: 0 auto; }
+                    img, iframe { width: 100%; height: 80vh; object-fit: contain; border: 0; background: white; }
+                    .meta { margin-bottom: 12px; color: #334155; }
+                </style>
+            </head>
+            <body>
+                <div class="wrap">
+                    <div class="meta">${escapeHtml(fileName)}</div>
+                    ${mime.startsWith('image/') ? `<img src="${src}" alt="Evidence preview">` : `<iframe src="${src}"></iframe>`}
+                </div>
+            </body>
+        </html>
+    `);
+    win.document.close();
+}
+
+function mimeFromFileName(fileName) {
+    const value = String(fileName || '').toLowerCase();
+    if (value.endsWith('.png')) return 'image/png';
+    if (value.endsWith('.jpg') || value.endsWith('.jpeg')) return 'image/jpeg';
+    if (value.endsWith('.webp')) return 'image/webp';
+    if (value.endsWith('.pdf')) return 'application/pdf';
+    return 'application/octet-stream';
 }

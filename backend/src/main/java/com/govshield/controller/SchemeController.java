@@ -2,6 +2,7 @@ package com.govshield.controller;
 
 import com.govshield.model.Scheme;
 import com.govshield.service.SchemeService;
+import com.govshield.util.RoleGuard;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +21,9 @@ public class SchemeController {
      * Create a new scheme
      */
     @PostMapping
-    public ResponseEntity<Scheme> createScheme(@RequestBody Scheme scheme) {
+    public ResponseEntity<Scheme> createScheme(@RequestBody Scheme scheme,
+                                               @RequestHeader("X-User-Role") String role) {
+        RoleGuard.ensureRole(role, "OFFICER", "ADMIN");
         Scheme createdScheme = schemeService.createScheme(scheme);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdScheme);
     }
@@ -65,7 +68,10 @@ public class SchemeController {
      * Update scheme
      */
     @PutMapping("/{id}")
-    public ResponseEntity<Scheme> updateScheme(@PathVariable Long id, @RequestBody Scheme scheme) {
+    public ResponseEntity<Scheme> updateScheme(@PathVariable Long id,
+                                               @RequestBody Scheme scheme,
+                                               @RequestHeader("X-User-Role") String role) {
+        RoleGuard.ensureRole(role, "OFFICER", "ADMIN");
         Scheme updatedScheme = schemeService.updateScheme(id, scheme);
         return ResponseEntity.ok(updatedScheme);
     }
@@ -74,7 +80,9 @@ public class SchemeController {
      * Deactivate scheme
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deactivateScheme(@PathVariable Long id) {
+    public ResponseEntity<String> deactivateScheme(@PathVariable Long id,
+                                                   @RequestHeader("X-User-Role") String role) {
+        RoleGuard.ensureRole(role, "OFFICER", "ADMIN");
         schemeService.deactivateScheme(id);
         return ResponseEntity.ok("Scheme deactivated successfully");
     }

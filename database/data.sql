@@ -26,17 +26,17 @@ INSERT INTO scheme_conflict_rules (sector_a, sector_b, action, message, is_activ
 ('EDUCATION', 'EDUCATION', 'FLAG', 'Multiple education scheme applications detected. Requires officer review.', TRUE);
 
 -- Sample Citizens
-INSERT INTO citizens (ugid, aadhaar, pan, first_name, last_name, email, phone_number, date_of_birth, gender, address, state, district, pincode, annual_income, employment_status, is_government_employee, is_below_poverty_line, verification_status, is_active) VALUES
-('UGID-1707293400000-a1b2c3d4', '123456789012', 'ABCDE1234F', 'Ramesh', 'Patel', 'ramesh.patel@email.com', '9876543210', '1985-05-15', 'MALE', '123 Main Street', 'Gujarat', 'Ahmedabad', '380001', 250000, 'UNEMPLOYED', FALSE, TRUE, 'VERIFIED', TRUE),
-('UGID-1707293400001-b2c3d4e5', '234567890123', 'BCDEF2345G', 'Priya', 'Singh', 'priya.singh@email.com', '9876543211', '1990-08-22', 'FEMALE', '456 Oak Avenue', 'Maharashtra', 'Mumbai', '400001', 350000, 'SELF_EMPLOYED', FALSE, FALSE, 'UNDER_REVIEW', TRUE),
-('UGID-1707293400002-c3d4e5f6', '345678901234', 'CDEFG3456H', 'Suresh', 'Verma', 'suresh.verma@email.com', '9876543212', '1978-03-10', 'MALE', '789 Pine Road', 'Rajasthan', 'Jaipur', '302001', 180000, 'UNEMPLOYED', FALSE, TRUE, 'PENDING', TRUE),
-('UGID-1707293400003-d4e5f6g7', '456789012345', 'DEFGH4567I', 'Anjali', 'Deshmukh', 'anjali.deshmukh@email.com', '9876543213', '1988-11-30', 'FEMALE', '321 Elm Street', 'Karnataka', 'Bangalore', '560001', 420000, 'EMPLOYED', FALSE, FALSE, 'VERIFIED', TRUE),
-('UGID-1707293400004-e5f6g7h8', '567890123456', 'EFGHI5678J', 'Vikram', 'Rao', 'vikram.rao@email.com', '9876543214', '1982-07-18', 'MALE', '654 Birch Lane', 'Telangana', 'Hyderabad', '500001', 290000, 'UNEMPLOYED', FALSE, TRUE, 'UNDER_REVIEW', TRUE);
+INSERT INTO citizens (ugid, aadhaar, pan, first_name, last_name, email, phone_number, bank_account_number, date_of_birth, gender, address, state, district, pincode, annual_income, employment_status, is_government_employee, is_below_poverty_line, verification_status, is_active) VALUES
+('UGID-1707293400000-a1b2c3d4', '123456789012', 'ABCDE1234F', 'Ramesh', 'Patel', 'ramesh.patel@email.com', '9876543210', '9988776655001', '1985-05-15', 'MALE', '123 Main Street', 'Gujarat', 'Ahmedabad', '380001', 250000, 'UNEMPLOYED', FALSE, TRUE, 'VERIFIED', TRUE),
+('UGID-1707293400001-b2c3d4e5', '234567890123', 'BCDEF2345G', 'Priya', 'Singh', 'priya.singh@email.com', '9876543211', '9988776655001', '1990-08-22', 'FEMALE', '456 Oak Avenue', 'Maharashtra', 'Mumbai', '400001', 350000, 'SELF_EMPLOYED', FALSE, FALSE, 'UNDER_REVIEW', TRUE),
+('UGID-1707293400002-c3d4e5f6', '345678901234', 'CDEFG3456H', 'Suresh', 'Verma', 'suresh.verma@email.com', '9876543212', '9988776655002', '1978-03-10', 'MALE', '789 Pine Road', 'Rajasthan', 'Jaipur', '302001', 180000, 'UNEMPLOYED', FALSE, TRUE, 'PENDING', TRUE),
+('UGID-1707293400003-d4e5f6g7', '456789012345', 'DEFGH4567I', 'Anjali', 'Deshmukh', 'anjali.deshmukh@email.com', '9876543213', '9988776655003', '1988-11-30', 'FEMALE', '321 Elm Street', 'Karnataka', 'Bangalore', '560001', 420000, 'EMPLOYED', FALSE, FALSE, 'VERIFIED', TRUE),
+('UGID-1707293400004-e5f6g7h8', '567890123456', 'EFGHI5678J', 'Vikram', 'Rao', 'vikram.rao@email.com', '9876543214', '9988776655004', '1982-07-18', 'MALE', '654 Birch Lane', 'Telangana', 'Hyderabad', '500001', 290000, 'UNEMPLOYED', FALSE, TRUE, 'UNDER_REVIEW', TRUE);
 
 -- Additional Citizens
-INSERT INTO citizens (ugid, aadhaar, pan, first_name, last_name, email, phone_number, date_of_birth, gender, address, state, district, pincode, annual_income, employment_status, is_government_employee, is_below_poverty_line, verification_status, is_active) VALUES
-('UGID-1707293400005-f6g7h8i9', '678901234567', 'FGHIJ6789K', 'Kiran', 'Mehta', 'kiran.mehta@email.com', '9876543215', '1992-01-12', 'FEMALE', '12 River View', 'Gujarat', 'Surat', '395001', 210000, 'SELF_EMPLOYED', FALSE, TRUE, 'PENDING', TRUE),
-('UGID-1707293400006-g7h8i9j0', '789012345678', 'GHIJK7890L', 'Arun', 'Nair', 'arun.nair@email.com', '9876543216', '1987-09-03', 'MALE', '44 Lake Road', 'Kerala', 'Kochi', '682001', 460000, 'EMPLOYED', FALSE, FALSE, 'VERIFIED', TRUE);
+INSERT INTO citizens (ugid, aadhaar, pan, first_name, last_name, email, phone_number, bank_account_number, date_of_birth, gender, address, state, district, pincode, annual_income, employment_status, is_government_employee, is_below_poverty_line, verification_status, is_active) VALUES
+('UGID-1707293400005-f6g7h8i9', '678901234567', 'FGHIJ6789K', 'Kiran', 'Mehta', 'kiran.mehta@email.com', '9876543215', '9988776655005', '1992-01-12', 'FEMALE', '12 River View', 'Gujarat', 'Surat', '395001', 210000, 'SELF_EMPLOYED', FALSE, TRUE, 'PENDING', TRUE),
+('UGID-1707293400006-g7h8i9j0', '789012345678', 'GHIJK7890L', 'Arun', 'Nair', 'arun.nair@email.com', '9876543216', '9988776655006', '1987-09-03', 'MALE', '44 Lake Road', 'Kerala', 'Kochi', '682001', 460000, 'EMPLOYED', FALSE, FALSE, 'VERIFIED', TRUE);
 
 -- Sample CEPS Profiles (demo)
 INSERT INTO citizen_economic_profiles (citizen_id, income_score, asset_score, land_score, employment_score, utility_score, ceps_score, ceps_category, factors_json) VALUES
@@ -89,7 +89,7 @@ INSERT INTO audit_logs (action, entity_type, entity_id, performed_by, details, s
 ('LOGIN', 'EMPLOYEE', 2, 'officer1@govshield.gov.in', 'Officer logged in successfully', 'SUCCESS', '192.168.1.107');
 
 -- Create views for common queries
-CREATE VIEW v_citizen_enrollments AS
+CREATE OR REPLACE VIEW v_citizen_enrollments AS
 SELECT 
   c.id as citizen_id,
   c.ugid,
@@ -110,7 +110,7 @@ LEFT JOIN enrollments e ON c.id = e.citizen_id
 LEFT JOIN schemes s ON e.scheme_id = s.id
 WHERE c.is_active = TRUE;
 
-CREATE VIEW v_project_summary AS
+CREATE OR REPLACE VIEW v_project_summary AS
 SELECT 
   p.id,
   p.project_code,
@@ -130,10 +130,10 @@ SELECT
   p.start_date,
   p.end_date,
   DATEDIFF(p.end_date, CURDATE()) as days_remaining
-FROM projects
+FROM projects p
 WHERE p.status IN ('PENDING', 'ONGOING');
 
-CREATE VIEW v_fraud_summary AS
+CREATE OR REPLACE VIEW v_fraud_summary AS
 SELECT 
   e.id,
   e.enrollment_number,

@@ -137,10 +137,19 @@ function updateEligibilityMetrics(enrollments) {
 
 function updateCitizenApplicationMetrics(enrollments) {
     const total = enrollments.length;
-    const approved = enrollments.filter(e => e.status === 'APPROVED').length;
-    const rejected = enrollments.filter(e =>
-        e.status === 'REJECTED' || e.status === 'AUDITOR_REJECTED' || e.status === 'OFFICER_REJECTED'
-    ).length;
+    const approved = enrollments.filter(e => {
+        const status = String(e.status || '').toUpperCase();
+        const stage = String(e.currentStage || '').toUpperCase();
+        return status === 'APPROVED' ||
+            status === 'ACTIVE' ||
+            status === 'OFFICER_APPROVED' ||
+            status === 'AUDITOR_APPROVED' ||
+            (stage === 'CLOSED' && !!e.approvalDate);
+    }).length;
+    const rejected = enrollments.filter(e => {
+        const status = String(e.status || '').toUpperCase();
+        return status === 'REJECTED' || status === 'AUDITOR_REJECTED' || status === 'OFFICER_REJECTED';
+    }).length;
 
     setText('totalApplications', total);
     setText('approvedCount', approved);

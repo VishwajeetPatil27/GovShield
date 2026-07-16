@@ -27,16 +27,9 @@ public class CitizenService {
     public Citizen registerCitizen(Citizen citizen) {
         citizen.setAadhaar(normalizeAadhaar(citizen.getAadhaar()));
         citizen.setPan(normalizeOptional(citizen.getPan()));
-        citizen.setEmail(normalizeOptional(citizen.getEmail()));
+        citizen.setEmail(normalizeEmail(citizen.getEmail()));
         citizen.setPhoneNumber(normalizeOptional(citizen.getPhoneNumber()));
-        // Check if citizen already exists
-        if (citizenRepository.findByAadhaar(citizen.getAadhaar()).isPresent()) {
-            throw new CustomException("Citizen with this Aadhaar already exists", "DUPLICATE_AADHAAR", 409);
-        }
-
-        if (citizenRepository.findByEmail(citizen.getEmail()).isPresent()) {
-            throw new CustomException("Citizen with this email already exists", "DUPLICATE_EMAIL", 409);
-        }
+        ensureCitizenDoesNotAlreadyExist(citizen);
 
         // Generate deterministic UGID from Aadhaar; generated once and reused forever.
         citizen.setUgid(UgidGenerator.generateFromAadhaar(citizen.getAadhaar()));
@@ -53,8 +46,11 @@ public class CitizenService {
      */
     public Citizen onboardCitizen(Citizen citizen) {
         citizen.setAadhaar(normalizeAadhaar(citizen.getAadhaar()));
-        return citizenRepository.findByAadhaar(citizen.getAadhaar())
-            .orElseGet(() -> registerCitizen(citizen));
+        citizen.setPan(normalizeOptional(citizen.getPan()));
+        citizen.setEmail(normalizeEmail(citizen.getEmail()));
+        citizen.setPhoneNumber(normalizeOptional(citizen.getPhoneNumber()));
+        ensureCitizenDoesNotAlreadyExist(citizen);
+        return registerCitizen(citizen);
     }
 
     /**
@@ -143,5 +139,29 @@ public class CitizenService {
         }
         String normalized = value.trim();
         return normalized.isEmpty() ? null : normalized;
+    }
+
+    private String normalizeEmail(String value) {
+        String normalized = normalizeOptional(value);
+        return normalized == null ? null : normalized.toLowerCase();
+    }
+
+    private void ensureCitizenDoesNotAlreadyExist(Citizen citizen) {
+        if (citizen.getAadhaar() != null && !citizen.getAadhaar().isBlank()
+            && citizenRepository.findByAadhaar(citizen.getAadhaar()).isPresent()) {
+            throw new CustomException("Citizen with this Aadhaar already exists", "DUPLICATE_AADHAAR", 409);
+        }
+
+        if (citizen.getEmail() != null && citizenRepository.findByEmail(citizen.getEmail()).isPresent()) {
+            throw new CustomException("Citizen with this email already exists", "DUPLICATE_EMAIL", 409);
+        }
+
+        if (citizen.getPhoneNumber() != null && citizenRepository.findByPhoneNumber(citizen.getPhoneNumber()).isPresent()) {
+            throw new CustomException("Citizen with this phone number already exists", "DUPLICATE_PHONE", 409);
+        }
+
+        if (citizen.getPan() != null && citizenRepository.findByPan(citizen.getPan()).isPresent()) {
+            throw new CustomException("Citizen with this PAN already exists", "DUPLICATE_PAN", 409);
+        }
     }
 }

@@ -12,4 +12,6 @@ public interface CitizenRepository extends JpaRepository<Citizen, Long> {
     Optional<Citizen> findByEmail(String email);
     Optional<Citizen> findByPhoneNumber(String phoneNumber);
     Optional<Citizen> findByPan(String pan);
+    long countByAadhaar(String aadhaar);
+    long countByBankAccountNumber(String bankAccountNumber);
 }

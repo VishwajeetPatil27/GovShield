@@ -20,6 +20,8 @@
                     <li><a href="#audits">Audit Logs</a></li>
                     <li><a href="#fraud-analysis">Fraud Analysis</a></li>
                     <li><a href="#projects">Project Analysis</a></li>
+                    <li><a href="#transparency-alerts">Transparency Alerts</a></li>
+                    <li><a href="#evidence-review">Public Evidence</a></li>
                     <li><a href="#reports">Reports</a></li>
                     <li><a href="#" onclick="logout()">Logout</a></li>
                 </ul>
@@ -140,6 +142,45 @@
                     <tbody id="projectAnalysisTableBody">
                         <!-- Project analysis will be loaded here -->
                     </tbody>
+                </table>
+            </section>
+
+            <section id="transparency-alerts" class="content-section" style="display:none;">
+                <h2>Public Evidence & Integrity Alerts</h2>
+                <div class="section-toolbar">
+                    <input type="text" id="projectAlertSearch" placeholder="Search by project code, severity, reason..." class="search-input">
+                </div>
+                <table class="admin-table alert-table">
+                    <thead>
+                        <tr>
+                            <th>Alert ID</th>
+                            <th>Project</th>
+                            <th>Severity</th>
+                            <th>Reason</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="projectAlertsTableBody"></tbody>
+                </table>
+            </section>
+
+            <section id="evidence-review" class="content-section" style="display:none;">
+                <h2>Public Evidence Review</h2>
+                <p class="muted">Citizen-submitted photos and complaints are listed here for audit review.</p>
+                <table class="admin-table alert-table">
+                    <thead>
+                        <tr>
+                            <th>Submitted At</th>
+                            <th>Project</th>
+                            <th>Citizen</th>
+                            <th>Type</th>
+                            <th>Message</th>
+                            <th>Photo</th>
+                            <th>Geo</th>
+                        </tr>
+                    </thead>
+                    <tbody id="projectEvidenceTableBody"></tbody>
                 </table>
             </section>
 

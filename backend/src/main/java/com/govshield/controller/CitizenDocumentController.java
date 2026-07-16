@@ -35,13 +35,14 @@ public class CitizenDocumentController {
                                                                              @RequestParam(defaultValue = "false") boolean includeContent,
                                                                              @RequestHeader("X-User-Role") String role) {
         RoleGuard.ensureRole(role, "CITIZEN", "ADMIN", "OFFICER", "AUDITOR");
-        return ResponseEntity.ok(citizenDocumentService.getCitizenDocuments(citizenId, includeContent));
+        boolean allowContent = "ADMIN".equalsIgnoreCase(role) || "OFFICER".equalsIgnoreCase(role);
+        return ResponseEntity.ok(citizenDocumentService.getCitizenDocuments(citizenId, includeContent && allowContent));
     }
 
     @GetMapping("/pending")
     public ResponseEntity<List<CitizenDocumentResponse>> getPendingDocuments(@RequestHeader("X-User-Role") String role) {
         RoleGuard.ensureRole(role, "ADMIN", "OFFICER");
-        return ResponseEntity.ok(citizenDocumentService.getPendingDocuments());
+        return ResponseEntity.ok(citizenDocumentService.getPendingDocuments(true));
     }
 
     @PostMapping("/{documentId}/verify")

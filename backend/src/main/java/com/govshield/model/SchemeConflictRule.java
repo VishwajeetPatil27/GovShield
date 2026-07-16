@@ -17,10 +17,10 @@ public class SchemeConflictRule {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 50)
+    @Column(name = "sector_a", nullable = false, length = 50)
     private String sectorA;
 
-    @Column(nullable = false, length = 50)
+    @Column(name = "sector_b", nullable = false, length = 50)
     private String sectorB;
 
     @Column(nullable = false, length = 10)

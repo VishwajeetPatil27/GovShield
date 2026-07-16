@@ -129,6 +129,40 @@
             <section id="transparency" class="content-section" style="display:none;">
                 <h2>Public Project Transparency</h2>
                 <p class="muted">Submit geo-tagged evidence (photos/complaints/reviews) to trigger integrity alerts.</p>
+                <div class="card" style="margin-bottom:1rem;">
+                    <h3>Submit Evidence</h3>
+                    <div class="two-col">
+                        <div class="form-group">
+                            <label>Project</label>
+                            <select id="citizenEvidenceProject"></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Evidence Type</label>
+                            <select id="citizenEvidenceType">
+                                <option value="PHOTO">Photo Progress Update</option>
+                                <option value="COMPLAINT">Complaint</option>
+                                <option value="REVIEW">Review</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Progress Estimate (%)</label>
+                            <input type="number" id="citizenEvidenceProgress" min="0" max="100" placeholder="e.g., 65">
+                        </div>
+                        <div class="form-group">
+                            <label>Contractor Rating</label>
+                            <input type="number" id="citizenEvidenceRating" min="1" max="5" placeholder="1 to 5">
+                        </div>
+                        <div class="form-group">
+                            <label>Project Photo</label>
+                            <input type="file" id="citizenEvidencePhoto" accept=".png,.jpg,.jpeg,.webp">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Message</label>
+                        <textarea id="citizenEvidenceMessage" rows="3" placeholder="Describe what you observed..."></textarea>
+                    </div>
+                    <button class="btn btn-primary" onclick="submitProjectEvidence()">Submit Evidence</button>
+                </div>
                 <table class="applications-table">
                     <thead>
                         <tr>

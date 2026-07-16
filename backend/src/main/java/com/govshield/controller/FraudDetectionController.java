@@ -1,7 +1,9 @@
 package com.govshield.controller;
 
 import com.govshield.model.Enrollment;
+import com.govshield.dto.FraudRiskResponse;
 import com.govshield.service.FraudDetectionService;
+import com.govshield.service.FraudService;
 import com.govshield.util.RoleGuard;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +17,18 @@ public class FraudDetectionController {
 
     @Autowired
     private FraudDetectionService fraudDetectionService;
+
+    @Autowired
+    private FraudService fraudService;
+
+    /**
+     * Analyze AI-based fraud risk for a citizen
+     */
+    @GetMapping("/{citizenId:\\d+}")
+    public ResponseEntity<FraudRiskResponse> analyzeCitizenFraud(@PathVariable Long citizenId) {
+        FraudRiskResponse response = fraudService.analyzeCitizenFraud(citizenId);
+        return ResponseEntity.ok(response);
+    }
 
     /**
      * Detect fraud patterns for a citizen
@@ -32,7 +46,7 @@ public class FraudDetectionController {
     public ResponseEntity<Enrollment> flagAsFraud(@PathVariable Long enrollmentId, 
                                                   @RequestParam String reason,
                                                   @RequestHeader("X-User-Role") String role) {
-        RoleGuard.ensureRole(role, "AUDITOR", "ADMIN");
+        RoleGuard.ensureRole(role, "OFFICER", "AUDITOR", "ADMIN");
         Enrollment enrollment = fraudDetectionService.flagAsfraud(enrollmentId, reason);
         return ResponseEntity.ok(enrollment);
     }

@@ -13,16 +13,16 @@ async function loadFraudAlerts() {
     // For officer dashboard
     if (fraudAlertsTableBody) {
         fraudAlertsTableBody.innerHTML = fraudAlerts.map(alert => `
-            <tr class="${alert.fraudRiskLevel.toLowerCase()}-risk">
-                <td>${alert.id}</td>
-                <td>${alert.citizen.ugid}</td>
-                <td>${alert.enrollmentNumber}</td>
+            <tr class="${safeRiskClass(alert.fraudRiskLevel)}-risk">
+                <td>${alert.id ?? '-'}</td>
+                <td>${alert.citizen?.ugid || '-'}</td>
+                <td>${alert.enrollmentNumber || '-'}</td>
                 <td>
-                    <span class="risk-badge ${alert.fraudRiskLevel.toLowerCase()}">${alert.fraudRiskLevel}</span>
+                    <span class="risk-badge ${safeRiskClass(alert.fraudRiskLevel)}">${alert.fraudRiskLevel || 'UNKNOWN'}</span>
                     <div class="muted small">${alert.fraudRiskScore != null ? `Score: ${alert.fraudRiskScore}` : ''}</div>
                 </td>
                 <td>${alert.rejectionReason || 'Suspicious enrollment pattern'}</td>
-                <td><span class="status-badge ${alert.status.toLowerCase()}">${alert.status}</span></td>
+                <td><span class="status-badge ${safeStatusClass(alert.status)}">${alert.status || 'PENDING'}</span></td>
                 <td>
                     <div class="action-buttons">
                         <button class="btn btn-flag btn-sm" onclick="flagAsfraud(${alert.id})">Investigate</button>
@@ -46,15 +46,15 @@ async function loadFraudAlerts() {
 
             return `
                 <tr>
-                    <td>${alert.enrollmentNumber}</td>
-                    <td>${alert.citizen.ugid}</td>
-                    <td>${alert.scheme.schemeName}</td>
+                    <td>${alert.enrollmentNumber || '-'}</td>
+                    <td>${alert.citizen?.ugid || '-'}</td>
+                    <td>${alert.scheme?.schemeName || '-'}</td>
                     <td>
-                        <span class="risk-badge ${alert.fraudRiskLevel.toLowerCase()}">${alert.fraudRiskLevel}</span>
+                        <span class="risk-badge ${safeRiskClass(alert.fraudRiskLevel)}">${alert.fraudRiskLevel || 'UNKNOWN'}</span>
                         <div class="muted small">${alert.fraudRiskScore != null ? `Score: ${alert.fraudRiskScore}` : ''}</div>
                     </td>
                     <td>${alert.rejectionReason || '-'}</td>
-                    <td><span class="status-badge ${alert.status.toLowerCase()}">${alert.status}</span></td>
+                    <td><span class="status-badge ${safeStatusClass(alert.status)}">${alert.status || 'PENDING'}</span></td>
                     <td>${recommendation}</td>
                 </tr>
             `;
@@ -202,7 +202,7 @@ async function viewCitizenDetails(citizenId) {
 }
 
 async function viewCitizenDocuments(citizenId) {
-    const docs = await apiCall(`/citizen-documents/citizen/${citizenId}`);
+    const docs = await apiCall(`/citizen-documents/citizen/${citizenId}?includeContent=true`);
     if (!docs || docs.length === 0) {
         alert('No documents uploaded yet.');
         return;
@@ -233,11 +233,62 @@ async function loadPendingCitizenDocuments() {
             <td><span class="status-badge pending">${doc.verificationStatus}</span></td>
             <td>${formatDateTime(doc.uploadedAt)}</td>
             <td>
+                <button class="btn btn-sm" onclick="previewCitizenDocument('${escapeForJs(doc.fileName)}', '${escapeForJs(doc.fileContentBase64 || '')}')">Preview</button>
+                <button class="btn btn-sm" onclick="downloadCitizenDocument('${escapeForJs(doc.fileName)}', '${escapeForJs(doc.fileContentBase64 || '')}')">Download</button>
                 <button class="btn btn-sm btn-approve" onclick="verifyCitizenDocument(${doc.id}, true)">Verify</button>
                 <button class="btn btn-sm btn-reject" onclick="verifyCitizenDocument(${doc.id}, false)">Reject</button>
             </td>
         </tr>
     `).join('');
+}
+
+function previewCitizenDocument(fileName, base64) {
+    if (!base64) {
+        alert('No file content available for preview.');
+        return;
+    }
+
+    const mime = mimeFromFileName(fileName);
+    const src = `data:${mime};base64,${base64}`;
+    const win = window.open('', '_blank', 'noopener,noreferrer');
+    if (!win) {
+        alert('Popup blocked. Please allow popups to preview documents.');
+        return;
+    }
+
+    win.document.write(`
+        <html>
+            <head>
+                <title>Document Preview</title>
+                <style>
+                    body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f6f8fb; }
+                    .wrap { max-width: 1100px; margin: 0 auto; }
+                    img, iframe { width: 100%; height: 85vh; border: 0; background: white; object-fit: contain; }
+                    .meta { margin-bottom: 12px; color: #334155; font-weight: 600; }
+                </style>
+            </head>
+            <body>
+                <div class="wrap">
+                    <div class="meta">${escapeHtml(fileName)}</div>
+                    ${mime.startsWith('image/') ? `<img src="${src}" alt="Document preview">` : `<iframe src="${src}"></iframe>`}
+                </div>
+            </body>
+        </html>
+    `);
+    win.document.close();
+}
+
+function downloadCitizenDocument(fileName, base64) {
+    if (!base64) {
+        alert('No file content available for download.');
+        return;
+    }
+
+    const mime = mimeFromFileName(fileName);
+    const link = document.createElement('a');
+    link.href = `data:${mime};base64,${base64}`;
+    link.download = fileName || 'document';
+    link.click();
 }
 
 async function verifyCitizenDocument(documentId, approved) {
@@ -255,9 +306,9 @@ async function verifyCitizenDocument(documentId, approved) {
 
 // Update fraud metrics
 function updateFraudMetrics(alerts) {
-    const highRisk = alerts.filter(a => a.fraudRiskLevel === 'HIGH').length;
-    const mediumRisk = alerts.filter(a => a.fraudRiskLevel === 'MEDIUM').length;
-    const flagged = alerts.filter(a => a.status === 'FLAGGED').length;
+    const highRisk = alerts.filter(a => String(a.fraudRiskLevel || '').toUpperCase() === 'HIGH').length;
+    const mediumRisk = alerts.filter(a => String(a.fraudRiskLevel || '').toUpperCase() === 'MEDIUM').length;
+    const flagged = alerts.filter(a => String(a.status || '').toUpperCase() === 'FLAGGED').length;
 
     const highRiskElement = document.getElementById('highRiskCases');
     const mediumRiskElement = document.getElementById('mediumRiskCases');
@@ -287,6 +338,31 @@ function statusClass(status) {
     if (value === 'VERIFIED') return 'approved';
     if (value === 'REJECTED') return 'rejected';
     return 'pending';
+}
+
+function safeRiskClass(value) {
+    return String(value || 'LOW').toLowerCase().replace(/[^a-z0-9_-]/g, '');
+}
+
+function safeStatusClass(value) {
+    return String(value || 'PENDING').toLowerCase().replace(/[^a-z0-9_-]/g, '');
+}
+
+function mimeFromFileName(fileName) {
+    const value = String(fileName || '').toLowerCase();
+    if (value.endsWith('.png')) return 'image/png';
+    if (value.endsWith('.jpg') || value.endsWith('.jpeg')) return 'image/jpeg';
+    if (value.endsWith('.webp')) return 'image/webp';
+    if (value.endsWith('.pdf')) return 'application/pdf';
+    return 'application/octet-stream';
+}
+
+function escapeForJs(value) {
+    return String(value ?? '')
+        .replace(/\\/g, '\\\\')
+        .replace(/'/g, "\\'")
+        .replace(/\r/g, '\\r')
+        .replace(/\n/g, '\\n');
 }
 
 async function loadAuditLogs() {

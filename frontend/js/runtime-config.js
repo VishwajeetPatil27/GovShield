@@ -19,7 +19,15 @@
     }
   })();
 
-  const raw = fromWindow || fromMeta || fromLocalStorage || DEFAULT_API_BASE_URL;
+  const isLocalUrl = function (value) {
+    return /:\/\/(localhost|127\.0\.0\.1)(:\d+)?(\/|$)/i.test(String(value || ""));
+  };
+
+  const safeLocalStorageUrl = isLocalUrl(fromLocalStorage)
+    ? fromLocalStorage
+    : "";
+
+  const raw = fromWindow || fromMeta || safeLocalStorageUrl || DEFAULT_API_BASE_URL;
   const normalized = String(raw).replace(/\/+$/, "");
 
   window.GOVSHIELD = window.GOVSHIELD || {};

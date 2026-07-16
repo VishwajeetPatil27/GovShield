@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS citizens (
   last_name VARCHAR(100) NOT NULL,
   email VARCHAR(100) UNIQUE NOT NULL,
   phone_number VARCHAR(20) UNIQUE NOT NULL,
+  bank_account_number VARCHAR(30),
   date_of_birth DATE NOT NULL,
   gender VARCHAR(20) NOT NULL,
   address VARCHAR(255) NOT NULL,
@@ -35,6 +36,7 @@ CREATE TABLE IF NOT EXISTS citizens (
   KEY idx_aadhaar (aadhaar),
   KEY idx_email (email),
   KEY idx_phone_number (phone_number),
+  KEY idx_bank_account_number (bank_account_number),
   KEY idx_employment_status (employment_status),
   CONSTRAINT check_annual_income CHECK (annual_income >= 0)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -309,11 +311,29 @@ CREATE INDEX idx_citizens_active ON citizens(is_active);
 CREATE INDEX idx_enrollments_citizen_status ON enrollments(citizen_id, status);
 CREATE INDEX idx_projects_state_status ON projects(state, status);
 CREATE INDEX idx_audit_logs_timestamp ON audit_logs(created_at DESC);
+
+-- Table: Fraud Flags
+CREATE TABLE IF NOT EXISTS fraud_flags (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  citizen_id BIGINT NOT NULL UNIQUE,
+  risk_score INT NOT NULL DEFAULT 0,
+  risk_level VARCHAR(20) NOT NULL DEFAULT 'LOW',
+  duplicate_aadhaar BOOLEAN NOT NULL DEFAULT FALSE,
+  duplicate_bank_account BOOLEAN NOT NULL DEFAULT FALSE,
+  income_mismatch BOOLEAN NOT NULL DEFAULT FALSE,
+  scheme_conflict BOOLEAN NOT NULL DEFAULT FALSE,
+  summary VARCHAR(1000),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+  FOREIGN KEY (citizen_id) REFERENCES citizens(id) ON DELETE CASCADE,
+  KEY idx_fraud_flags_risk_score (risk_score),
+  KEY idx_fraud_flags_risk_level (risk_level)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 CREATE INDEX idx_project_evidence_project_status ON project_evidence(project_id, status);
 CREATE INDEX idx_project_alerts_project_resolved ON project_alerts(project_id, resolved);
 
 -- Set session variables for data import
 SET SESSION sql_mode='ALLOW_INVALID_DATES';
-SET SESSION max_allowed_packet=16777216;
 
 -- End of schema.sql

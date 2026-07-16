@@ -70,6 +70,9 @@ public class ProjectTransparencyService {
         if (evidenceType.isBlank()) {
             throw new CustomException("evidenceType is required", "INVALID_EVIDENCE_TYPE", 400);
         }
+        if ("PHOTO".equals(evidenceType) && (request.getPhotoBase64() == null || request.getPhotoBase64().isBlank())) {
+            throw new CustomException("Photo evidence requires an uploaded image", "PHOTO_REQUIRED", 400);
+        }
 
         ProjectEvidence evidence = new ProjectEvidence();
         evidence.setProject(project);
@@ -91,6 +94,10 @@ public class ProjectTransparencyService {
 
     public List<ProjectEvidence> listEvidenceForProject(Long projectId) {
         return projectEvidenceRepository.findByProjectIdOrderByCreatedAtDesc(projectId);
+    }
+
+    public List<ProjectEvidence> listAllEvidenceForReview() {
+        return projectEvidenceRepository.findAllByOrderByCreatedAtDesc();
     }
 
     public List<ProjectAlert> listActiveAlerts() {

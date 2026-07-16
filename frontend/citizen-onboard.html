@@ -205,6 +205,8 @@
         document.getElementById('onboardForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             const resultBox = document.getElementById('resultBox');
+            const submitBtn = document.querySelector('#onboardForm button[type="submit"]');
+            if (submitBtn) submitBtn.disabled = true;
             resultBox.textContent = 'Processing registration...';
 
             try {
@@ -219,12 +221,16 @@
 
                 const docs = await uploadDocuments(citizen.id);
                 resultBox.innerHTML = `<strong>Registration successful</strong><br>UGID: ${citizen.ugid}<br>Documents uploaded: ${docs.length}<br>Verification status: ${citizen.verificationStatus || 'UNDER_REVIEW'}`;
+                alert(`Registration successful. UGID: ${citizen.ugid}`);
                 renderIdCard(citizen);
             } catch (err) {
                 resultBox.textContent = err.message;
+                alert(err.message || 'Registration failed');
+            } finally {
+                if (submitBtn) submitBtn.disabled = false;
             }
         });
     </script>
-    <script src="js/chatbot.js"></script>
+    <script src="js/chatbot.js?v=20260517"></script>
 </body>
 </html>

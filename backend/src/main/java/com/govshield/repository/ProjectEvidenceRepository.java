@@ -9,5 +9,6 @@ import java.util.List;
 public interface ProjectEvidenceRepository extends JpaRepository<ProjectEvidence, Long> {
     List<ProjectEvidence> findByProjectIdOrderByCreatedAtDesc(Long projectId);
     List<ProjectEvidence> findByCitizenIdOrderByCreatedAtDesc(Long citizenId);
+    List<ProjectEvidence> findAllByOrderByCreatedAtDesc();
 }
 

@@ -57,10 +57,10 @@ public class CitizenDocumentService {
             .toList();
     }
 
-    public List<CitizenDocumentResponse> getPendingDocuments() {
+    public List<CitizenDocumentResponse> getPendingDocuments(boolean includeContent) {
         return citizenDocumentRepository.findByVerificationStatusOrderByUploadedAtDesc("PENDING")
             .stream()
-            .map(doc -> toResponse(doc, false))
+            .map(doc -> toResponse(doc, includeContent))
             .toList();
     }
 

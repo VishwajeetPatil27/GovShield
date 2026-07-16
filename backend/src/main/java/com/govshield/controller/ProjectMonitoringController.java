@@ -189,11 +189,15 @@ public class ProjectMonitoringController {
 
     @GetMapping("/{id}/evidence")
     public ResponseEntity<List<ProjectEvidence>> listEvidence(@PathVariable Long id,
-                                                              @RequestHeader(value = "X-User-Role", required = false) String role) {
-        if (role != null && !role.isBlank()) {
-            RoleGuard.ensureRole(role, "CITIZEN", "OFFICER", "AUDITOR", "ADMIN");
-        }
+                                                              @RequestHeader("X-User-Role") String role) {
+        RoleGuard.ensureRole(role, "AUDITOR", "ADMIN");
         return ResponseEntity.ok(projectTransparencyService.listEvidenceForProject(id));
+    }
+
+    @GetMapping("/evidence/all")
+    public ResponseEntity<List<ProjectEvidence>> listAllEvidence(@RequestHeader("X-User-Role") String role) {
+        RoleGuard.ensureRole(role, "AUDITOR", "ADMIN");
+        return ResponseEntity.ok(projectTransparencyService.listAllEvidenceForReview());
     }
 
     @GetMapping("/alerts")

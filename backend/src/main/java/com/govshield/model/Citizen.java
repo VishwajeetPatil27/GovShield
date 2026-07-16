@@ -38,6 +38,9 @@ public class Citizen {
     @Column(unique = true)
     private String phoneNumber;
 
+    @Column(name = "bank_account_number")
+    private String bankAccountNumber;
+
     @Column(nullable = false)
     private LocalDate dateOfBirth;
 

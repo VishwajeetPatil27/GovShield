@@ -22,20 +22,30 @@ public class FraudDetectionService {
 
         return enrollments.stream()
             .filter(enrollment -> {
+                if (enrollment == null) {
+                    return false;
+                }
+
                 // Check multiple risk factors
                 String riskLevel = enrollment.getFraudRiskLevel();
                 boolean hasHighRisk = "HIGH".equals(riskLevel);
                 
                 // Check for rapid applications
                 long rapidAppCount = enrollments.stream()
-                    .filter(e -> java.time.temporal.ChronoUnit.DAYS.between(
-                        e.getApplicationDate(), enrollment.getApplicationDate()) < 15)
+                    .filter(e -> e.getApplicationDate() != null
+                        && enrollment.getApplicationDate() != null
+                        && java.time.temporal.ChronoUnit.DAYS.between(
+                            e.getApplicationDate(), enrollment.getApplicationDate()) < 15)
                     .count();
                 boolean hasRapidApplications = rapidAppCount > 2;
 
                 // Check for duplicate sector enrollments
                 long sectorCount = enrollments.stream()
-                    .filter(e -> e.getScheme().getSector().equals(enrollment.getScheme().getSector()))
+                    .filter(e -> e.getScheme() != null
+                        && enrollment.getScheme() != null
+                        && e.getScheme().getSector() != null
+                        && enrollment.getScheme().getSector() != null
+                        && e.getScheme().getSector().equals(enrollment.getScheme().getSector()))
                     .count();
                 boolean hasDuplicateSectors = sectorCount > 1;
 
@@ -79,8 +89,9 @@ public class FraudDetectionService {
     public List<Enrollment> getFraudAlerts() {
         return enrollmentRepository.findAll().stream()
             .filter(enrollment -> 
-                enrollment.getIsFraudDetected() || 
-                ("HIGH".equals(enrollment.getFraudRiskLevel()) && !enrollment.getStatus().equals("REJECTED"))
+                Boolean.TRUE.equals(enrollment.getIsFraudDetected()) ||
+                ("HIGH".equals(enrollment.getFraudRiskLevel())
+                    && !"REJECTED".equalsIgnoreCase(String.valueOf(enrollment.getStatus())))
             )
             .collect(Collectors.toList());
     }
