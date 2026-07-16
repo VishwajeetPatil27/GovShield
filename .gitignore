@@ -4,3 +4,15 @@ backend/target/
 .DS_Store
 .vscode/
 .idea/
+*.iml
+*.ipr
+*.iws
+*.code-workspace
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Logs / runtime output
+logs/
+log.out
