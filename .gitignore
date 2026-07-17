@@ -1,5 +1,6 @@
 node_modules/
 backend/target/
+doc/
 .env
 .DS_Store
 .vscode/
@@ -8,6 +9,7 @@ backend/target/
 *.ipr
 *.iws
 *.code-workspace
+*.md
 
 # OS junk
 .DS_Store
