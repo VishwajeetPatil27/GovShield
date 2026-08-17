@@ -4,6 +4,7 @@
   "private": true,
   "description": "GovShield - backend, frontend, and database workspace",
   "scripts": {
+    "start": "cd backend && mvn clean package -DskipTests && java -jar target/govshield-1.0.0.jar",
     "dev": "concurrently \"npm run backend\" \"npm run frontend\"",
     "backend": "cd backend && mvn spring-boot:run",
     "frontend": "npx http-server frontend -p 5500 --host 127.0.0.1 -c-1",
