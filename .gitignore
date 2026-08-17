@@ -1,6 +1,7 @@
 node_modules/
 backend/target/
 doc/
+projectdoc/
 .env
 .DS_Store
 .vscode/

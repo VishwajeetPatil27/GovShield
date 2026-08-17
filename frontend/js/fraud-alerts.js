@@ -72,7 +72,11 @@ async function flagAsfraud(enrollmentId) {
     const result = await apiCall(`/fraud/flag/${enrollmentId}?reason=${encodeURIComponent(reason)}`, 'POST');
     if (result) {
         alert('Enrollment flagged for fraud investigation');
-        loadFraudAlerts();
+        if (typeof window.refreshRoleDashboardData === 'function') {
+            window.refreshRoleDashboardData();
+        } else {
+            loadFraudAlerts();
+        }
     }
 }
 
@@ -300,7 +304,11 @@ async function verifyCitizenDocument(documentId, approved) {
     if (result) {
         alert(`Document ${approved ? 'verified' : 'rejected'} successfully`);
         loadPendingCitizenDocuments();
-        loadCitizens();
+        if (typeof window.refreshRoleDashboardData === 'function') {
+            window.refreshRoleDashboardData();
+        } else {
+            loadCitizens();
+        }
     }
 }
 
@@ -419,61 +427,11 @@ function setupAuditLogFilters() {
     applyFilter();
 }
 
-// Generate fraud report (auditor)
-function generateFraudReport() {
-    const content = document.getElementById('reportContent');
-    if (!content) return;
-
-    content.innerHTML = `
-        <div class="report-section">
-            <h3>Fraud Detection Report</h3>
-            <p><strong>Report Date:</strong> ${new Date().toLocaleDateString()}</p>
-            <p><strong>Total Cases Analyzed:</strong> 542</p>
-            <p><strong>High Risk Cases:</strong> 23</p>
-            <p><strong>Medium Risk Cases:</strong> 67</p>
-            <p><strong>Cases Under Investigation:</strong> 15</p>
-            <p><strong>Cases Resolved:</strong> 8</p>
-        </div>
-        <div class="report-section">
-            <h3>Key Findings</h3>
-            <p>1. Multiple applications from same income bracket in short time period - HIGH RISK</p>
-            <p>2. Inconsistencies between declared income and bank records - MEDIUM RISK</p>
-            <p>3. Duplicate benefits across multiple schemes - HIGH RISK</p>
-            <p>4. Government employee applying for schemes - MEDIUM RISK</p>
-        </div>
-        <div class="report-section">
-            <h3>Recommendations</h3>
-            <p>• Implement real-time cross-verification with income tax records</p>
-            <p>• Strengthen family record verification process</p>
-            <p>• Increase monitoring frequency for repeat applicants</p>
-        </div>
-    `;
-}
-
-// Generate compliance report (auditor)
-function generateComplianceReport() {
-    const content = document.getElementById('reportContent');
-    if (!content) return;
-
-    content.innerHTML = `
-        <div class="report-section">
-            <h3>Compliance Report</h3>
-            <p><strong>Report Date:</strong> ${new Date().toLocaleDateString()}</p>
-            <p><strong>Total Transactions Monitored:</strong> 1,245</p>
-            <p><strong>Compliance Rate:</strong> 94.5%</p>
-            <p><strong>Non-Compliance Cases:</strong> 68</p>
-        </div>
-        <div class="report-section">
-            <h3>Compliance Metrics</h3>
-            <p><strong>Rule Adherence:</strong> 96.2%</p>
-            <p><strong>Documentation Completeness:</strong> 92.8%</p>
-            <p><strong>Timely Processing:</strong> 95.1%</p>
-        </div>
-        <div class="report-section">
-            <h3>Issues Identified</h3>
-            <p>• 34 cases with incomplete documentation</p>
-            <p>• 22 cases with processing delays</p>
-            <p>• 12 cases with policy violations</p>
-        </div>
-    `;
+function escapeHtml(value) {
+    return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/\"/g, '&quot;')
+        .replace(/'/g, '&#039;');
 }

@@ -361,7 +361,6 @@ public class EligibilityService {
      * Approve enrollment
      */
     public Enrollment approveEnrollment(Long enrollmentId) {
-        Enrollment enrollment = getEnrollmentById(enrollmentId);
         return adminReview(enrollmentId, true, "Approved through legacy endpoint");
     }
 

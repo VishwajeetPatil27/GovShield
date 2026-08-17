@@ -66,8 +66,12 @@ async function approveEnrollment(enrollmentId) {
 
     const result = await apiCall(endpoint, 'POST');
     if (result) {
-        loadEnrollments();
-        if (typeof loadFraudAlerts === 'function') loadFraudAlerts();
+        if (typeof window.refreshRoleDashboardData === 'function') {
+            window.refreshRoleDashboardData();
+        } else {
+            loadEnrollments();
+            if (typeof loadFraudAlerts === 'function') loadFraudAlerts();
+        }
     }
 }
 
@@ -82,8 +86,12 @@ async function rejectEnrollment(enrollmentId) {
 
     const result = await apiCall(endpoint, 'POST');
     if (result) {
-        loadEnrollments();
-        if (typeof loadFraudAlerts === 'function') loadFraudAlerts();
+        if (typeof window.refreshRoleDashboardData === 'function') {
+            window.refreshRoleDashboardData();
+        } else {
+            loadEnrollments();
+            if (typeof loadFraudAlerts === 'function') loadFraudAlerts();
+        }
     }
 }
 
@@ -406,6 +414,9 @@ async function saveCeps() {
     }
 
     updateCepsUi(ceps);
+    if (typeof window.refreshRoleDashboardData === 'function') {
+        window.refreshRoleDashboardData();
+    }
     alert(`CEPS updated: ${ceps.cepsScore} (${ceps.cepsCategory})`);
     return ceps;
 }

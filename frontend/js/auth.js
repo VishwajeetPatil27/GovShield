@@ -60,19 +60,49 @@ function showSection(sectionId) {
             if (typeof loadCitizenProfile === 'function') loadCitizenProfile();
             if (typeof loadCeps === 'function') loadCeps(false);
         } else if (sectionId === 'dashboard') {
-            if (localStorage.getItem('userRole') === 'CITIZEN') {
-                if (typeof loadCitizenProfile === 'function') loadCitizenProfile();
-                if (typeof loadCeps === 'function') loadCeps(false);
-                if (typeof loadEnrollments === 'function') loadEnrollments();
-                if (typeof loadSchemes === 'function') loadSchemes();
-                if (typeof loadCitizenProjectsForTransparency === 'function') loadCitizenProjectsForTransparency();
-            } else if (localStorage.getItem('userRole') === 'ADMIN' || localStorage.getItem('userRole') === 'AUDITOR') {
-                if (typeof loadProjectAlerts === 'function') loadProjectAlerts();
-                if (typeof loadProjectEvidenceReview === 'function') loadProjectEvidenceReview();
-            }
+            refreshRoleDashboardData();
         }
     }
 }
+
+function refreshRoleDashboardData() {
+    const role = localStorage.getItem('userRole');
+    if (!role || !localStorage.getItem('authToken')) return;
+
+    if (role === 'CITIZEN') {
+        if (typeof loadCitizenProfile === 'function') loadCitizenProfile();
+        if (typeof loadCeps === 'function') loadCeps(false);
+        if (typeof loadEnrollments === 'function') loadEnrollments();
+        if (typeof loadSchemes === 'function') loadSchemes();
+        if (typeof loadCitizenProjectsForTransparency === 'function') loadCitizenProjectsForTransparency();
+    } else if (role === 'ADMIN') {
+        if (typeof loadEnrollments === 'function') loadEnrollments();
+        if (typeof loadFraudAlerts === 'function') loadFraudAlerts();
+        if (typeof loadProjects === 'function') loadProjects();
+        if (typeof loadCitizens === 'function') loadCitizens();
+        if (typeof loadAuditLogs === 'function') loadAuditLogs();
+        if (typeof loadProjectAlerts === 'function') loadProjectAlerts();
+        if (typeof loadProjectEvidenceReview === 'function') loadProjectEvidenceReview();
+    } else if (role === 'AUDITOR') {
+        if (typeof loadEnrollments === 'function') loadEnrollments();
+        if (typeof loadFraudAlerts === 'function') loadFraudAlerts();
+        if (typeof loadProjects === 'function') loadProjects();
+        if (typeof loadAuditLogs === 'function') loadAuditLogs();
+        if (typeof loadProjectAlerts === 'function') loadProjectAlerts();
+        if (typeof loadProjectEvidenceReview === 'function') loadProjectEvidenceReview();
+    } else if (role === 'OFFICER') {
+        if (typeof loadEnrollments === 'function') loadEnrollments();
+        if (typeof loadFraudAlerts === 'function') loadFraudAlerts();
+        if (typeof loadProjects === 'function') loadProjects();
+        if (typeof loadCitizens === 'function') loadCitizens();
+        if (typeof loadAuditLogs === 'function') loadAuditLogs();
+    } else {
+        if (typeof loadFraudAlerts === 'function') loadFraudAlerts();
+        if (typeof loadProjects === 'function') loadProjects();
+        if (typeof loadAuditLogs === 'function') loadAuditLogs();
+    }
+}
+window.refreshRoleDashboardData = refreshRoleDashboardData;
 
 function applyRoleBasedVisibility(role) {
     document.querySelectorAll('[data-role-only]').forEach(element => {
@@ -242,35 +272,34 @@ async function apiCall(endpoint, method = 'GET', data = null) {
     }
 }
 
-// Setup login form
-const loginForm = document.getElementById('loginForm');
-if (loginForm) {
-    loginForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        const loginType = document.querySelector('input[name="loginType"]:checked')?.value || 'employee';
+document.addEventListener('DOMContentLoaded', function() {
+    const loginForm = document.getElementById('loginForm');
+    if (loginForm) {
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const loginType = document.querySelector('input[name="loginType"]:checked')?.value || 'employee';
 
-        if (loginType === 'citizen') {
-            const aadhaar = document.getElementById('aadhaar').value.replace(/\s+/g, '').trim();
-            const ugid = document.getElementById('ugid').value.trim();
-            if (!aadhaar || !ugid) {
-                const errorDiv = document.getElementById('loginError');
-                if (errorDiv) {
-                    errorDiv.textContent = 'Citizen login requires Aadhaar and UGID';
-                    errorDiv.style.display = 'block';
+            if (loginType === 'citizen') {
+                const aadhaar = document.getElementById('aadhaar').value.replace(/\s+/g, '').trim();
+                const ugid = document.getElementById('ugid').value.trim();
+                if (!aadhaar || !ugid) {
+                    const errorDiv = document.getElementById('loginError');
+                    if (errorDiv) {
+                        errorDiv.textContent = 'Citizen login requires Aadhaar and UGID';
+                        errorDiv.style.display = 'block';
+                    }
+                    return;
                 }
+                login(null, null, 'citizen', aadhaar, ugid);
                 return;
             }
-            login(null, null, 'citizen', aadhaar, ugid);
-            return;
-        }
 
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-        login(email, password, 'employee');
-    });
-}
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            login(email, password, 'employee');
+        });
+    }
 
-document.addEventListener('DOMContentLoaded', function() {
     const typeRadios = document.querySelectorAll('input[name="loginType"]');
     const employeeFields = document.getElementById('employeeLoginFields');
     const citizenFields = document.getElementById('citizenLoginFields');
@@ -290,70 +319,10 @@ document.addEventListener('DOMContentLoaded', function() {
             if (ugid) ugid.required = isCitizen;
         });
     });
-});
 
-document.addEventListener('DOMContentLoaded', function() {
-    const role = localStorage.getItem('userRole');
-    if (!role || !localStorage.getItem('authToken')) return;
-    if (role === 'CITIZEN') {
-        if (typeof loadCitizenProfile === 'function') loadCitizenProfile();
-        if (typeof loadEnrollments === 'function') loadEnrollments();
-        if (typeof loadSchemes === 'function') loadSchemes();
-    } else if (role === 'ADMIN') {
-        if (typeof loadEnrollments === 'function') loadEnrollments();
-        if (typeof loadFraudAlerts === 'function') loadFraudAlerts();
-        if (typeof loadProjects === 'function') loadProjects();
-        if (typeof loadCitizens === 'function') loadCitizens();
-        if (typeof loadAuditLogs === 'function') loadAuditLogs();
-        if (typeof loadProjectAlerts === 'function') loadProjectAlerts();
-        if (typeof loadProjectEvidenceReview === 'function') loadProjectEvidenceReview();
-    } else if (role === 'AUDITOR') {
-        if (typeof loadFraudAlerts === 'function') loadFraudAlerts();
-        if (typeof loadProjects === 'function') loadProjects();
-        if (typeof loadAuditLogs === 'function') loadAuditLogs();
-        if (typeof loadProjectAlerts === 'function') loadProjectAlerts();
-        if (typeof loadProjectEvidenceReview === 'function') loadProjectEvidenceReview();
-    } else if (role === 'OFFICER') {
-        if (typeof loadEnrollments === 'function') loadEnrollments();
-        if (typeof loadFraudAlerts === 'function') loadFraudAlerts();
-        if (typeof loadProjects === 'function') loadProjects();
-        if (typeof loadCitizens === 'function') loadCitizens();
-        if (typeof loadAuditLogs === 'function') loadAuditLogs();
-    } else {
-        if (typeof loadFraudAlerts === 'function') loadFraudAlerts();
-        if (typeof loadProjects === 'function') loadProjects();
-        if (typeof loadAuditLogs === 'function') loadAuditLogs();
-    }
+    refreshRoleDashboardData();
 
     setInterval(() => {
-        const activeRole = localStorage.getItem('userRole');
-        if (!activeRole || !localStorage.getItem('authToken')) return;
-        if (activeRole === 'CITIZEN') {
-            if (typeof loadEnrollments === 'function') loadEnrollments();
-        } else if (activeRole === 'ADMIN') {
-            if (typeof loadEnrollments === 'function') loadEnrollments();
-            if (typeof loadFraudAlerts === 'function') loadFraudAlerts();
-            if (typeof loadProjects === 'function') loadProjects();
-            if (typeof loadCitizens === 'function') loadCitizens();
-            if (typeof loadAuditLogs === 'function') loadAuditLogs();
-            if (typeof loadProjectAlerts === 'function') loadProjectAlerts();
-            if (typeof loadProjectEvidenceReview === 'function') loadProjectEvidenceReview();
-        } else if (activeRole === 'AUDITOR') {
-            if (typeof loadFraudAlerts === 'function') loadFraudAlerts();
-            if (typeof loadProjects === 'function') loadProjects();
-            if (typeof loadAuditLogs === 'function') loadAuditLogs();
-            if (typeof loadProjectAlerts === 'function') loadProjectAlerts();
-            if (typeof loadProjectEvidenceReview === 'function') loadProjectEvidenceReview();
-        } else if (activeRole === 'OFFICER') {
-            if (typeof loadEnrollments === 'function') loadEnrollments();
-            if (typeof loadFraudAlerts === 'function') loadFraudAlerts();
-            if (typeof loadProjects === 'function') loadProjects();
-            if (typeof loadCitizens === 'function') loadCitizens();
-            if (typeof loadAuditLogs === 'function') loadAuditLogs();
-        } else {
-            if (typeof loadFraudAlerts === 'function') loadFraudAlerts();
-            if (typeof loadProjects === 'function') loadProjects();
-            if (typeof loadAuditLogs === 'function') loadAuditLogs();
-        }
+        refreshRoleDashboardData();
     }, 15000);
 });

@@ -146,6 +146,18 @@ function updateProjectMetrics(projects) {
     }
 }
 
+// Update project metrics
+function updateProjectMetrics(projects) {
+    const totalBudget = projects.reduce((sum, p) => sum + parseFloat(p.totalBudget), 0);
+    const totalSpent = projects.reduce((sum, p) => sum + parseFloat(p.spentAmount), 0);
+    const ongoing = projects.filter(p => p.status === 'ONGOING').length;
+
+    const projectsUnderReview = document.getElementById('projectsUnderReview');
+    if (projectsUnderReview) {
+        projectsUnderReview.textContent = ongoing;
+    }
+}
+
 // View project details
 async function viewProjectDetails(projectId) {
     const project = await apiCall(`/projects/${projectId}`);
@@ -162,7 +174,11 @@ async function releaseFunds(projectId) {
     const result = await apiCall(`/projects/${projectId}/release-funds?amount=${amount}`, 'POST');
     if (result) {
         alert('Funds released successfully');
-        loadProjects();
+        if (typeof window.refreshRoleDashboardData === 'function') {
+            window.refreshRoleDashboardData();
+        } else {
+            loadProjects();
+        }
     }
 }
 
@@ -174,7 +190,11 @@ async function recordExpenditure(projectId) {
     const result = await apiCall(`/projects/${projectId}/expenditure?amount=${amount}`, 'POST');
     if (result) {
         alert('Expenditure recorded successfully');
-        loadProjects();
+        if (typeof window.refreshRoleDashboardData === 'function') {
+            window.refreshRoleDashboardData();
+        } else {
+            loadProjects();
+        }
     }
 }
 
@@ -189,7 +209,11 @@ async function updateProjectProgress(projectId) {
     const result = await apiCall(`/projects/${projectId}/progress?progressPercentage=${progress}`, 'PUT');
     if (result) {
         alert('Project progress updated successfully');
-        loadProjects();
+        if (typeof window.refreshRoleDashboardData === 'function') {
+            window.refreshRoleDashboardData();
+        } else {
+            loadProjects();
+        }
     }
 }
 
@@ -245,7 +269,11 @@ async function reviewProject(projectId, approved) {
     const result = await apiCall(endpoint, 'POST');
     if (result) {
         alert('Project workflow updated');
-        loadProjects();
+        if (typeof window.refreshRoleDashboardData === 'function') {
+            window.refreshRoleDashboardData();
+        } else {
+            loadProjects();
+        }
     }
 }
 

@@ -87,7 +87,11 @@ async function applyForScheme(schemeId) {
         } else {
             alert(`Eligibility Status: ${result.eligibilityStatus}\nReason: ${result.message}`);
         }
-        loadEnrollments();
+        if (typeof window.refreshRoleDashboardData === 'function') {
+            window.refreshRoleDashboardData();
+        } else {
+            loadEnrollments();
+        }
     } else {
         alert('Error submitting application');
     }
@@ -131,7 +135,11 @@ async function editScheme(schemeId) {
     const result = await apiCall(`/schemes/${schemeId}`, 'PUT', payload);
     if (result) {
         alert('Scheme updated');
-        loadSchemes();
+        if (typeof window.refreshRoleDashboardData === 'function') {
+            window.refreshRoleDashboardData();
+        } else {
+            loadSchemes();
+        }
     }
 }
 
@@ -196,6 +204,10 @@ async function createSchemeFlow() {
     const result = await apiCall('/schemes', 'POST', payload);
     if (result) {
         alert('Scheme created');
-        loadSchemes();
+        if (typeof window.refreshRoleDashboardData === 'function') {
+            window.refreshRoleDashboardData();
+        } else {
+            loadSchemes();
+        }
     }
 }
