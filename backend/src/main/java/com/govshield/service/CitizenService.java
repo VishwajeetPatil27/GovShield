@@ -31,6 +31,16 @@ public class CitizenService {
         citizen.setPhoneNumber(normalizeOptional(citizen.getPhoneNumber()));
         ensureCitizenDoesNotAlreadyExist(citizen);
 
+        if (citizen.getIsBelowPovertyLine() == null) {
+            citizen.setIsBelowPovertyLine(false);
+        }
+        if (citizen.getIsGovernmentEmployee() == null) {
+            citizen.setIsGovernmentEmployee(false);
+        }
+        if (citizen.getAnnualIncome() == null) {
+            citizen.setAnnualIncome(0.0);
+        }
+
         // Generate deterministic UGID from Aadhaar; generated once and reused forever.
         citizen.setUgid(UgidGenerator.generateFromAadhaar(citizen.getAadhaar()));
         citizen.setCreatedAt(LocalDate.now());
