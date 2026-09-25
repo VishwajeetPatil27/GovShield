@@ -1,7 +1,7 @@
 const API_BASE_URL =
     (window.GOVSHIELD && window.GOVSHIELD.API_BASE_URL)
         ? window.GOVSHIELD.API_BASE_URL
-        : 'http://localhost:8080/api';
+        : 'https://govshield.onrender.com/api';
 let currentUser = null;
 let currentToken = null;
 

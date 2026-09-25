@@ -1,5 +1,5 @@
 (function () {
-  const DEFAULT_API_BASE_URL = "http://localhost:8080/api";
+  const DEFAULT_API_BASE_URL = "https://govshield.onrender.com/api";
 
   const fromWindow =
     (window.__GOVSHIELD_CONFIG__ &&
@@ -19,13 +19,17 @@
     }
   })();
 
+  const isLocalHost = function () {
+    return /^(localhost|127\.0\.0\.1)$/i.test(window.location.hostname || "");
+  };
+
   const isLocalUrl = function (value) {
     return /:\/\/(localhost|127\.0\.0\.1)(:\d+)?(\/|$)/i.test(String(value || ""));
   };
 
   const safeLocalStorageUrl = isLocalUrl(fromLocalStorage)
-    ? fromLocalStorage
-    : "";
+    ? (isLocalHost() ? fromLocalStorage : "")
+    : fromLocalStorage;
 
   const raw = fromWindow || fromMeta || safeLocalStorageUrl || DEFAULT_API_BASE_URL;
   const normalized = String(raw).replace(/\/+$/, "");
